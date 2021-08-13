@@ -1,5 +1,18 @@
 /// <reference types="cypress" />
 
+it('has known duration', () => {
+  cy.visit('index.html')
+  cy.get('video').should('have.prop', 'duration', 6.8)
+})
+
+it('has some positive duration', () => {
+  cy.visit('index.html')
+  // at first it is NaN, then it becomes a number
+  cy.get('video').should(($video) => {
+    expect($video[0].duration).to.be.gt(0)
+  })
+})
+
 it('plays video', () => {
   cy.visit('index.html')
   // https://html.spec.whatwg.org/multipage/media.html#playing-the-media-resource
