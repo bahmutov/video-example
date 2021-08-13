@@ -14,4 +14,9 @@ it('plays video', () => {
   cy.get('video')
     .should('have.prop', 'paused', false)
     .and('have.prop', 'ended', false)
+
+  // wait for the video to finish playing
+  // by retrying the assertion
+  // I think our video is about 6 seconds long
+  cy.get('video', { timeout: 10000 }).and('have.prop', 'ended', true)
 })
