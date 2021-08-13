@@ -18,7 +18,7 @@ it('plays video', () => {
   // wait for the video to finish playing
   // by retrying the assertion
   // I think our video is about 6 seconds long
-  cy.get('video', { timeout: 10000 }).and('have.prop', 'ended', true)
+  cy.get('video', { timeout: 10000 }).should('have.prop', 'ended', true)
 })
 
 it('plays video at 4x speed', () => {
@@ -31,5 +31,5 @@ it('plays video at 4x speed', () => {
   // wait for the video to finish playing
   // because the video is playing at 4x speed
   // we don't have to wait as long
-  cy.get('video', { timeout: 2000 }).and('have.prop', 'ended', true)
+  cy.get('video', { timeout: 2000 }).should('have.prop', 'ended', true)
 })
