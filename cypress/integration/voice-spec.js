@@ -1,47 +1,56 @@
 /// <reference types="cypress" />
 
 it('transcribes video', () => {
-  let finished = false
-  const output = {
-    results: null,
+  const state = {
+    started: false,
+    finished: false,
   }
 
-  cy.visit('index.html')
-  cy.get('video').then(($video) => {
+  cy.visit('index.html').then(() => {
     const recognition = new webkitSpeechRecognition()
     recognition.continuous = true
     recognition.interimResults = true
 
     recognition.onstart = function () {
       console.log('recognition.onstart')
-      finished = false
+      state.started = true
     }
     recognition.onerror = function (event) {
       console.error(event.error)
-      finished = true
+      state.finished = true
+      // TODO: handle error, probably should check for it in the test
     }
     recognition.onend = function () {
       console.log('recognition.onend')
-      finished = true
+      state.finished = true
     }
     recognition.onresult = function (event) {
       console.log('recognition.onresult')
       console.log(event.results)
-      output.results = event.results
+      state.results = event.results
     }
 
     console.log('starting recognition')
     recognition.start()
+  })
 
+  // wait for recognition to start before playing the video
+  cy.wrap(state).should('have.property', 'started', true)
+
+  cy.get('video').then(($video) => {
     $video[0].play()
   })
 
   // wait for the recognition to stop
-  cy.wrap(null, { timeout: 20000 }).should(() => {
-    expect(output.results, 'results').to.have.length(1)
-    expect(output.results[0], 'isFinal').to.have.property('isFinal', true)
-  })
+  cy.wrap(state, { timeout: 30000 }).should('have.property', 'finished', true)
 
-  // show the final transcript
-  cy.wrap(output, { log: true }).its('results.0.0.transcript').then(cy.log)
+  // wait for the recognition results
+  cy.wrap(state, { timeout: 20000 })
+    .should((o) => {
+      expect(o.results, 'results').to.have.length(1)
+      expect(o.results[0], 'isFinal').to.have.property('isFinal', true)
+    })
+    // show the final transcript
+    .its('results.0.0.transcript')
+    .then(cy.log)
 })
