@@ -1,7 +1,6 @@
 /// <reference types="cypress" />
 
 it('transcribes video', () => {
-  let finished = false
   const output = {
     results: null,
   }
